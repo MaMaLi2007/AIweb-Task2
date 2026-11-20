@@ -5,10 +5,12 @@ from whoosh.index import create_in
 from whoosh.fields import *
 from whoosh.qparser import QueryParser
 import os
+import time
 
 
 if not os.path.exists("indexdir"):
     os.makedirs("indexdir")
+    
 
 # where to start crawling
 root = "https://info.cern.ch/hypertext/WWW"
@@ -23,8 +25,10 @@ schema = Schema(title=TEXT(stored=True), content=TEXT, url= ID(stored=True, uniq
 ix = create_in("indexdir", schema)
 writer = ix.writer()
 
+max_pages = 30
+pages_crawled = 0
 
-while agenda:
+while agenda and pages_crawled < max_pages:
     url = agenda.pop()
 
     # Check if we have already visited this URL
@@ -43,6 +47,9 @@ while agenda:
     print("Get", r.status_code, r.url)
     if r.status_code != 200:
         continue
+
+    # Nur erfolgreich geladene Seiten (200 OK) mitzählen
+    pages_crawled += 1
 
     # Parse the page and find all links
     soup = BeautifulSoup(r.content, "html.parser")
@@ -65,7 +72,17 @@ while agenda:
             agenda.append(target)
     
     # write the index to the disk
-writer.commit()
+# Sicher committen (Windows-Dateisperren abfangen)
+try:
+    writer.commit()
+except PermissionError:
+    time.sleep(0.5)
+    try:
+        # Reste im tmp-Ordner entfernen, falls Windows ihn kurz blockiert hat
+        import shutil
+        shutil.rmtree("indexdir/MAIN.tmp", ignore_errors=True)
+    except Exception:
+        pass
 
 with ix.searcher() as searcher:
     # find entries with the word 'program'
