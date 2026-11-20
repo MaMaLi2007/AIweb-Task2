@@ -1,0 +1,11 @@
+# Python Virtual Environment
+.venv/
+
+# Whoosh Index-Ordner
+indexdir/
+indexdir copy/
+
+# Python Cache & macOS Müll
+__pycache__/
+__MACOSX/
+.DS_Store
