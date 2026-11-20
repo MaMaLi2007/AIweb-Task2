@@ -23,6 +23,7 @@ schema = Schema(title=TEXT(stored=True), content=TEXT, url= ID(stored=True, uniq
 ix = create_in("indexdir", schema)
 writer = ix.writer()
 
+
 while agenda:
     url = agenda.pop()
 
@@ -49,9 +50,9 @@ while agenda:
     title = soup.title.get_text() if soup.title else ""
     content = soup.get_text()
     writer.add_document(
-        title = title,
-        content = content,
-        url = r.url
+        title=title,
+        content=content,
+        url=r.url
     )
 
     for link in soup.select("a[href]"):
@@ -63,9 +64,7 @@ while agenda:
             agenda.append(target)
     
     # write the index to the disk
-    writer.commit()
-
-
+writer.commit()
 
 with ix.searcher() as searcher:
     # find entries with the words 'first' AND 'last'
@@ -75,5 +74,3 @@ with ix.searcher() as searcher:
     # print all results
     for r in results:
         print(r)
-
-
