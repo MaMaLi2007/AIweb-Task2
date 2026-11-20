@@ -4,12 +4,17 @@ from urllib.parse import urldefrag, urljoin
 from whoosh.index import create_in
 from whoosh.fields import *
 from whoosh.qparser import QueryParser
+import os
+
+
+if not os.path.exists("indexdir"):
+    os.makedirs("indexdir")
 
 # where to start crawling
 root = "https://info.cern.ch/hypertext/WWW"
 
 agenda = [root] # what to crawl next
-visited = set() # what we have already crawled
+visited = set() # does not crawl what already was crawled
 
 # unique -> no urls multiple times; stored -> readable, ID -> identificator
 schema = Schema(title=TEXT(stored=True), content=TEXT, url= ID(stored=True, unique=True))
