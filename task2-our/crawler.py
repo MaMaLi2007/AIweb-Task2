@@ -9,6 +9,7 @@ from whoosh.qparser import QueryParser
 root = "https://info.cern.ch/hypertext/WWW"
 
 agenda = [root] # what to crawl next
+visited = set() # what we have already crawled
 
 # unique -> no urls multiple times; stored -> readable, ID -> identificator
 schema = Schema(title=TEXT(stored=True), content=TEXT, url= ID(stored=True, unique=True))
@@ -19,6 +20,11 @@ writer = ix.writer()
 
 while agenda:
     url = agenda.pop()
+
+    # Check if we have already visited this URL
+    if url in visited:
+        continue
+    visited.add(url)
 
     # Get the page
     r = requests.get(
@@ -53,13 +59,13 @@ while agenda:
             agenda.append(target)
     
     # write the index to the disk
-    writer.commit()
+writer.commit()
 
 
 
 with ix.searcher() as searcher:
-    # find entries with the words 'first' AND 'last'
-    query = QueryParser("content", ix.schema).parse("first last")
+    # find entries with the word 'program'
+    query = QueryParser("content", ix.schema).parse("program")
     results = searcher.search(query)
 
     # print all results
