@@ -27,6 +27,7 @@ writer = ix.writer()
 while agenda:
     url = agenda.pop()
 
+    # Check if we have already visited this URL
     if url in visited:
         continue
     visited.add(url)
@@ -67,8 +68,8 @@ while agenda:
 writer.commit()
 
 with ix.searcher() as searcher:
-    # find entries with the words 'first' AND 'last'
-    query = QueryParser("content", ix.schema).parse("first last")
+    # find entries with the word 'program'
+    query = QueryParser("content", ix.schema).parse("program")
     results = searcher.search(query)
 
     # print all results
