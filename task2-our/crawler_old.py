@@ -9,6 +9,9 @@ from whoosh.fields import *
 from whoosh.qparser import QueryParser
 
 
+
+#crawler with search function and memory index
+
 #search function to search for words in the in_memory_index
 
 def search(search_term, in_memory_index):

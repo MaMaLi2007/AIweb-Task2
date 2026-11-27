@@ -11,7 +11,8 @@ from whoosh.qparser import MultifieldParser, AndGroup, QueryParser
 
 
 # where to start crawling
-root = "https://books.toscrape.com"
+root = "https://en.wikipedia.org/wiki/Cognitive_science"
+allowed_prefix = "https://en.wikipedia.org/wiki/"
 
 agenda = [root]   # what to crawl next
 visited = set()   # does not crawl what already was crawled
@@ -19,7 +20,7 @@ visited = set()   # does not crawl what already was crawled
 # unique -> no urls multiple times; stored -> readable, ID -> identificator
 schema = Schema(
     title=TEXT(stored=True), 
-    content=TEXT, 
+    content=TEXT #(stored=True), 
     url= ID(stored=True, unique=True),
 )
 
@@ -31,12 +32,12 @@ if not os.path.exists("indexdir"):
 ix = create_in("indexdir", schema)
 writer = ix.writer()
 
-max_pages = 10
+max_pages = 50
 pages_crawled = 0
 in_memory_index = {}
 
 while agenda and pages_crawled < max_pages:
-    url = agenda.pop()
+    url = agenda.pop(0)   # bfs instead of dfs
 
     # checks if we have already crawled this URL
     if url in visited:
@@ -60,9 +61,17 @@ while agenda and pages_crawled < max_pages:
     # parse the page and find all links
     soup = BeautifulSoup(r.content, "html.parser")
 
-    # get title and text
-    title = soup.title.get_text() if soup.title else ""
+    # get title and text and teaser
+    title = soup.title.get_text() if soup.title else ""#
+    
+    '''
+    teaser = soup.find_all("p")
+    text_list = []
+    for p in teaser:
+        text_list.append(p.get_text())
+    '''
     content = soup.get_text()
+
     writer.add_document(
         title=title,
         content=content,
@@ -72,9 +81,11 @@ while agenda and pages_crawled < max_pages:
     for link in soup.select("a[href]"):
         # get the absolute URL of the link, and remove any fragment (the part after #)
         target, _ = urldefrag(urljoin(r.url, link["href"]))
-        if (target == root or target.startswith(root + "/")) and target not in visited:
-            #print("Found ", target)
-            agenda.append(target)
+        if target.startswith(allowed_prefix):
+            article_name = target[len(allowed_prefix):]
+            if ":" not in article_name and target not in visited:
+                #print("Found ", target)
+                agenda.append(target)
 
 try:
     writer.commit() 

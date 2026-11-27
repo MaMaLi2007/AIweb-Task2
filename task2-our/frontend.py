@@ -23,9 +23,19 @@ def search_whoosh(query):
         hits = searcher.search(parsed, limit=20)   # search the index with the parsed query, limit to 20 results
         # append all results in results list
         for hit in hits:
+
+            '''
+            teaser = hit.highlights("content")
+            
+            # 2. Fallback: Falls das Suchwort nur im Titel stand, nimm die ersten 200 Zeichen
+            if not teaser:
+                teaser = hit.fields().get("content", "")[:200] + "..."
+            '''
+
             results.append({
                 "title": hit.fields().get("title", "").strip(),
                 "url": hit.fields().get("url", ""),
+                #"teaser": teaser,
             })
     return results
 

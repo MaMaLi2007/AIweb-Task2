@@ -5,6 +5,11 @@
     </head>
     <body>
         <h1>Search the Web</h1>
+        <img src="{{ url_for('static', filename='Cog_Hex.jpg') }}" 
+            alt="Cognitive Science" 
+            width="250"
+            style="position: absolute; top: 20px; right: 300px;">
+        <p>Ask your questions about Cognitive Science </p>
         <form action='search' method='get'>
             <input name='q' type='text'>
             <button type="submit">Search</button>
