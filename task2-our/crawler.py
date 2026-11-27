@@ -25,7 +25,7 @@ schema = Schema(
 
 # create an index in the directory indexdr (the directory must already exist!)
 if os.path.exists("indexdir"):
-    shutil.rmtree("indexdir")
+    shutil.rmtree("indexdir", ignore_errors=True)
 if not os.path.exists("indexdir"):
     os.makedirs("indexdir")
 ix = create_in("indexdir", schema)
