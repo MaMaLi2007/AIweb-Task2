@@ -1,33 +1,33 @@
-<!doctype html>
-<html lang="de">
+<!doctype html>     
+<html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Suchergebnisse für {{ query }}</title>
+  <title> search results</title>
 </head>
 <body>
-  <h1>Suchergebnisse für „{{ query }}“</h1>
+  <h1> Search results for „{{ query }}“ </h1>
 
   <form action="/search" method="get">
-    <input type="text" name="q" value="{{ query }}" placeholder="Suchbegriff eingeben...">
-    <button type="submit">Suchen</button>
+    <input type="text" name="q" value="{{ query }}" placeholder="enter search term">
+    <button type="submit">Search</button>
   </form>
 
-  <p><a href="/">Zur Startseite</a></p>
+  <p><a href="/">Back to Home</a></p>
   <hr>
 
-  {% if results %}
-    <p>{{ results|length }} Treffer gefunden:</p>
+  {% if url_list %}
+    <p>{{ url_list|length }} results found:</p>
     <ul>
-      {% for item in results %}
+      {% for item in url_list %}
         <li>
-          <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+          <a href="{{ item.url }}" >
             {{ item.title }}
           </a>
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>Keine Treffer für „{{ query }}“ gefunden.</p>
+    <p>No results found for „{{ query }}“.</p>
   {% endif %}
 </body>
 </html>

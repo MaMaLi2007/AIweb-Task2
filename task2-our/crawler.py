@@ -6,11 +6,12 @@ from bs4 import BeautifulSoup
 from urllib.parse import urldefrag, urljoin
 from whoosh.index import create_in
 from whoosh.fields import *
-from whoosh.qparser import MultifieldParser, AndGroup
+from whoosh.qparser import MultifieldParser, AndGroup, QueryParser
+
 
 
 # where to start crawling
-root = "http://info.cern.ch/hypertext/WWW"
+root = "https://books.toscrape.com"
 
 agenda = [root]   # what to crawl next
 visited = set()   # does not crawl what already was crawled
@@ -23,6 +24,8 @@ schema = Schema(
 )
 
 # create an index in the directory indexdr (the directory must already exist!)
+if os.path.exists("indexdir"):
+    shutil.rmtree("indexdir")
 if not os.path.exists("indexdir"):
     os.makedirs("indexdir")
 ix = create_in("indexdir", schema)
@@ -73,8 +76,6 @@ while agenda and pages_crawled < max_pages:
             #print("Found ", target)
             agenda.append(target)
 
-
-
 try:
     writer.commit() 
 except PermissionError:   # works around Error from windowsystem
@@ -82,16 +83,6 @@ except PermissionError:   # works around Error from windowsystem
     try:
         # deletes MAIN.tmp and tells python no to crash if folder doesn't exist
         shutil.rmtree("indexdir/MAIN.tmp", ignore_errors=True)
+        writer.commit()
     except Exception:
         pass
-
-with ix.searcher() as searcher:
-    parser = MultifieldParser(["title", "content"], schema=ix.schema, group=AndGroup)
-    query = parser.parse("web hypertext")
-    results = searcher.search(query)
-    # print all results
-    for r in results:
-        print(r["title"], "->", r["url"])
-
-#print(in_memory_index)
-#print("Suchergebnis:", search(["web", "hypertext"], in_memory_index))

@@ -37,7 +37,8 @@ if not os.path.exists("indexdir"):
     os.makedirs("indexdir")
     
 # where to start crawling
-root = "http://info.cern.ch/hypertext/WWW"
+#root = "http://info.cern.ch/hypertext/WWW"
+root = "https://books.toscrape.com"
 
 agenda = [root]   # what to crawl next
 visited = set()   # does not crawl what already was crawled
@@ -139,4 +140,4 @@ with ix.searcher() as searcher:
         print(r)
 
 #print(in_memory_index)
-print("Suchergebnis:", search(["web", "hypertext"], in_memory_index))
+print("Suchergebnis:", search(["the"], in_memory_index))
