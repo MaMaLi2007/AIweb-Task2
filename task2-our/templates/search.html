@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Suchergebnisse für {{ query }}</title>
+</head>
+<body>
+  <h1>Suchergebnisse für „{{ query }}“</h1>
+
+  <form action="/search" method="get">
+    <input type="text" name="q" value="{{ query }}" placeholder="Suchbegriff eingeben...">
+    <button type="submit">Suchen</button>
+  </form>
+
+  <p><a href="/">Zur Startseite</a></p>
+  <hr>
+
+  {% if results %}
+    <p>{{ results|length }} Treffer gefunden:</p>
+    <ul>
+      {% for item in results %}
+        <li>
+          <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">
+            {{ item.title }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Keine Treffer für „{{ query }}“ gefunden.</p>
+  {% endif %}
+</body>
+</html>
