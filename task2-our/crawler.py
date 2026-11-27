@@ -13,7 +13,7 @@ if not os.path.exists("indexdir"):
     os.makedirs("indexdir")
     
 # where to start crawling
-root = "https://info.cern.ch/hypertext/WWW/"
+root = "http://info.cern.ch/hypertext/WWW/"
 
 agenda = [root]   # what to crawl next
 visited = set()   # does not crawl what already was crawled
