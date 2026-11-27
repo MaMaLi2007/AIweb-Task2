@@ -9,11 +9,35 @@ from whoosh.fields import *
 from whoosh.qparser import QueryParser
 
 
+#search function to search for words in the in_memory_index
+
+def search(search_term, in_memory_index):
+    # if there is no word to search for, return an empty list
+    if not search_term:
+        return []
+    
+    result_urls = None # initialize result_urls as None
+
+    for word in search_term:
+        clean_word = word.lower() # lowercase because index is in lowercase too
+        if clean_word in in_memory_index: # look if the word is in the index
+            current_urls = set(in_memory_index[clean_word]) # add the urls of the word to the result_urls set
+        else:
+            return [] # if the word is not in the index, return an empty list, because there are no urls for this word
+        
+        if result_urls is None: # if result_urls is None, it means this is the first word we are searching for, so we initialize it with the urls of the first word
+            result_urls = current_urls
+        else:
+            result_urls = result_urls & current_urls # if result_urls is not None, it means we have already searched for a word, so we take the intersection of the urls of the current word and the urls of the previous words
+
+    return list(result_urls) #return the result_urls as a list
+
+
 if not os.path.exists("indexdir"):
     os.makedirs("indexdir")
     
 # where to start crawling
-root = "http://info.cern.ch/hypertext/WWW/"
+root = "http://info.cern.ch/hypertext/WWW"
 
 agenda = [root]   # what to crawl next
 visited = set()   # does not crawl what already was crawled
@@ -29,7 +53,7 @@ schema = Schema(
 ix = create_in("indexdir", schema)
 writer = ix.writer()
 
-max_pages = 2
+max_pages = 10
 pages_crawled = 0
 in_memory_index = {}
 
@@ -48,9 +72,9 @@ while agenda and pages_crawled < max_pages:
         timeout=15,
     )
 
-    # check the status code and skip if not 200 OK
+    # check the status code and skip if not 200 OK or if it's not an HTML page
     print("Get", r.status_code, r.url)
-    if r.status_code != 200:
+    if r.status_code != 200 or "text/html" not in r.headers.get("Content-Type", "").lower():
         continue
 
     pages_crawled += 1   # 
@@ -93,6 +117,8 @@ while agenda and pages_crawled < max_pages:
             #print("Found ", target)
             agenda.append(target)
 
+
+
 try:
     writer.commit() 
 except PermissionError:   # works around Error from windowsystem
@@ -112,4 +138,5 @@ with ix.searcher() as searcher:
     for r in results:
         print(r)
 
-print(in_memory_index)
+#print(in_memory_index)
+print("Suchergebnis:", search(["web", "hypertext"], in_memory_index))
